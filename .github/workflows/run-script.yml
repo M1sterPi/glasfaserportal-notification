@@ -10,36 +10,27 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # 1. Repo auschecken
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # 1) Alte Status-Datei als Artifact herunterladen (wenn vorhanden)
-      - name: Download last status artifact
-        uses: actions/download-artifact@v3
-        with:
-          name: last-status
-          path: .
-
+      # 2. Python installieren
       - name: Setup Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.11'
 
+      # 3. Abhängigkeiten installieren
       - name: Install dependencies
         run: |
           pip install -r requirements.txt
           python -m playwright install firefox
 
-      # 2) Prüfen, Mail senden und last_status.json neu schreiben
-      - name: Compare status and possibly send mail
-        run: |
-          python glasfaserportal_notification.py
-        # liefert Exit-Code 1 bei Änderung, 0 sonst
-
-      # 3) Neue Status-Datei als Artifact hochladen
-      - name: Upload new status artifact
-        if: always()
-        uses: actions/upload-artifact@v3
-        with:
-          name: last-status
-          path: last_status.json
+      # 4. Skript ausführen (sendet immer eine Mail)
+      - name: Run Python script
+        env:
+          FIBER_STATUS_URL: ${{ secrets.FIBER_STATUS_URL }}
+          SMTP_USER:         ${{ secrets.SMTP_USER }}
+          SMTP_PASS:         ${{ secrets.SMTP_PASS }}
+          SMTP_TO:           ${{ secrets.SMTP_TO }}
+        run: python glasfaserportal_notification.py
