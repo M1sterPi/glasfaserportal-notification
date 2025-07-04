@@ -49,8 +49,14 @@ def extract_status_from_html(path="telekom_raw.html") -> str:
 
     # Optional: HTML tags entfernen, Whitespace normalisieren
     status_text = paragraph.get_text(separator=" ", strip=True)
-    print("DEBUG: Status-Text:", status_text)
-    return status_text
+
+    # NEU: Status-Schritte extrahieren
+    steps = soup.select("li.styles_processStepName__WLqM")
+    steps_text = " | ".join(step.get_text(strip=True) for step in steps)
+
+    combined = status_text + "\n\nSTEPS:\n" + steps_text
+    print("DEBUG: Kombinierter Text:", combined)
+    return combined
 
 
 async def fetch_hash() -> str:
@@ -88,7 +94,7 @@ def load_old_hash() -> Optional[str]:
     return None
 
 
-def save_hash(h: str) -> None:
+def save_hash(h: str) -> None: 
     DATA_FILE.write_text(json.dumps({
         "hash": h,
         "timestamp": datetime.now().isoformat()
