@@ -2,7 +2,8 @@ name: Python-Skript automatisch ausführen
 
 on:
   schedule:
-    - cron: '0 2 * * *'
+    # alle 30 Minuten
+    - cron:  '*/30 * * * *'
   workflow_dispatch:  # Ermöglicht manuelle Ausführung
 
 jobs:
