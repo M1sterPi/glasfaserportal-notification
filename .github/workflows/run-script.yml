@@ -11,7 +11,7 @@ jobs:
     steps:
       # 1. Repo auschecken
       - name: Checkout repository
-        uses: actions/checkout@v4  # KORRIGIERT
+        uses: actions/checkout@v4  
 
       # 2. Python installieren
       - name: Setup Python
