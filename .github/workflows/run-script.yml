@@ -2,7 +2,8 @@ name: Python-Skript automatisch ausführen
 
 on:
   schedule:
-    - cron: '*/5 * * * *'
+    - cron: '*/5 * * * *'    # alle 5 Minuten
+  workflow_dispatch: {}      # manuelle Ausführung möglich
 
 jobs:
   run-script:
@@ -11,7 +12,7 @@ jobs:
     steps:
       # 1. Repo auschecken
       - name: Checkout repository
-        uses: actions/checkout@v4  
+        uses: actions/checkout@v4
 
       # 2. Python installieren
       - name: Setup Python
@@ -23,13 +24,13 @@ jobs:
       - name: Install dependencies
         run: |
           pip install -r requirements.txt
-          python -m playwright install firefox  # WICHTIG: Browser installieren
+          python -m playwright install firefox
 
-      # 4. Skript ausführen
+      # 4. Skript ausführen (sendet immer eine Mail)
       - name: Run Python script
         env:
           FIBER_STATUS_URL: ${{ secrets.FIBER_STATUS_URL }}
-          SMTP_USER: ${{ secrets.SMTP_USER }}
-          SMTP_PASS: ${{ secrets.SMTP_PASS }}
-          SMTP_TO: ${{ secrets.SMTP_TO }}
+          SMTP_USER:         ${{ secrets.SMTP_USER }}
+          SMTP_PASS:         ${{ secrets.SMTP_PASS }}
+          SMTP_TO:           ${{ secrets.SMTP_TO }}
         run: python glasfaserportal_notification.py
