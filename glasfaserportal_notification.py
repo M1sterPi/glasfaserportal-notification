@@ -5,6 +5,7 @@ import json
 import hashlib
 import asyncio
 import smtplib
+import sys
 
 from pathlib import Path
 from datetime import datetime
@@ -122,6 +123,7 @@ async def main():
         )
         save_hash(new)
         print(f"[{datetime.now():%H:%M}] Änderung erkannt, E-Mail versandt.")
+        sys.exit(1)
     else:
         print(f"[{datetime.now():%H:%M}] Keine Änderung.")
 
