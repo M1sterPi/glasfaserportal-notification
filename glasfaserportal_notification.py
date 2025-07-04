@@ -38,25 +38,29 @@ def extract_status_from_html(path="telekom_raw.html") -> str:
     with open(path, encoding="utf-8") as f:
         soup = BeautifulSoup(f, "lxml")
 
+    # ─── Dein alter Status-Text ────────────────────────────────────────────────
     headline = soup.find("h5", string="Aktuelle Informationen")
     if not headline:
         raise ValueError("Abschnitt 'Aktuelle Informationen' nicht gefunden!")
-
-    # Wir holen das <p> danach – das enthält den relevanten Text
     paragraph = headline.find_next("p", class_="styles_statusBoxText__JUBF5")
     if not paragraph:
         raise ValueError("Status-Text nicht gefunden!")
-
-    # Optional: HTML tags entfernen, Whitespace normalisieren
     status_text = paragraph.get_text(separator=" ", strip=True)
 
-    # NEU: Status-Schritte extrahieren
-    steps = soup.select("li.styles_processStepName__WLqM")
-    steps_text = " | ".join(step.get_text(strip=True) for step in steps)
+    # ─── Alle <div> mit Klassen, die mit "styles_line__" beginnen ───────────────
+    line_divs = soup.find_all("div", class_=re.compile(r"(^|\s)styles_line__"))
+    # Wir speichern die kompletten class-Attribute
+    line_classes = [" ".join(d["class"]) for d in line_divs]
+    lines_text = " | ".join(line_classes) if line_classes else "no lines found"
 
-    combined = status_text + "\n\nSTEPS:\n" + steps_text
-    print("DEBUG: Kombinierter Text:", combined)
+    # ─── Kombiniere alles für den Hash ──────────────────────────────────────────
+    combined = (
+        status_text
+        + "\n\nLINES:\n" + lines_text
+    )
+    print("DEBUG: Kombinierter Text für Hashing:\n", combined)
     return combined
+
 
 
 async def fetch_hash() -> str:
