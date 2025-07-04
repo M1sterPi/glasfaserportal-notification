@@ -1,3 +1,6 @@
+permissions:
+  contents: write  # erlaubt commit & push über GITHUB_TOKEN
+
 name: Python-Skript automatisch ausführen
 
 on:
