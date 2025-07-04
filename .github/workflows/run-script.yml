@@ -10,9 +10,12 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. Repo auschecken
+      # 1. Repo auschecken und Credentials für Push behalten
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+          fetch-depth: 0        # damit auch Tags/History da sind
 
       # 2. Python installieren
       - name: Setup Python
@@ -26,11 +29,23 @@ jobs:
           pip install -r requirements.txt
           python -m playwright install firefox
 
-      # 4. Skript ausführen (sendet immer eine Mail)
+      # 4. Skript ausführen (sendet Mail und schreibt last_status.json bei Änderung)
       - name: Run Python script
         env:
           FIBER_STATUS_URL: ${{ secrets.FIBER_STATUS_URL }}
           SMTP_USER:         ${{ secrets.SMTP_USER }}
           SMTP_PASS:         ${{ secrets.SMTP_PASS }}
           SMTP_TO:           ${{ secrets.SMTP_TO }}
-        run: python glasfaserportal_notification.py
+        run: |
+          python glasfaserportal_notification.py
+          echo "SCRIPT_EXIT_CODE=$?" >> $GITHUB_OUTPUT
+
+      # 5. Commit & Push der neuen Status-Datei, wenn verändert
+      - name: Commit updated status
+        if: steps.run_python_script.outputs.SCRIPT_EXIT_CODE == '1'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add last_status.json
+          git commit -m "chore: update last_status.json [skip ci]"
+          git push
