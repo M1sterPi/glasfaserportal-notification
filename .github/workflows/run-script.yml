@@ -2,35 +2,36 @@ name: Python-Skript automatisch ausführen
 
 on:
   schedule:
-    - cron: '*/5 * * * *'    # alle 5 Minuten
-  workflow_dispatch: {}      # manuelle Ausführung möglich
+    - cron: '*/5 * * * *'
+  workflow_dispatch: {}
 
 jobs:
   run-script:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. Repo auschecken und Credentials für Push behalten
+      # 1. Repo auschecken + Push-Credential behalten
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
           persist-credentials: true
-          fetch-depth: 0        # damit auch Tags/History da sind
+          fetch-depth: 0
 
-      # 2. Python installieren
+      # 2. Python einrichten
       - name: Setup Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.11'
 
-      # 3. Abhängigkeiten installieren
+      # 3. Dependenzen installieren
       - name: Install dependencies
         run: |
           pip install -r requirements.txt
           python -m playwright install firefox
 
-      # 4. Skript ausführen (sendet Mail und schreibt last_status.json bei Änderung)
+      # 4. Skript ausführen und Exit-Code als Output setzen
       - name: Run Python script
+        id: run_script                  # <-- hier die ID!
         env:
           FIBER_STATUS_URL: ${{ secrets.FIBER_STATUS_URL }}
           SMTP_USER:         ${{ secrets.SMTP_USER }}
@@ -38,11 +39,11 @@ jobs:
           SMTP_TO:           ${{ secrets.SMTP_TO }}
         run: |
           python glasfaserportal_notification.py
-          echo "SCRIPT_EXIT_CODE=$?" >> $GITHUB_OUTPUT
+          echo "changed=$?" >> $GITHUB_OUTPUT
 
-      # 5. Commit & Push der neuen Status-Datei, wenn verändert
+      # 5. Nur wenn sich was geändert hat, committen & pushen
       - name: Commit updated status
-        if: steps.run_python_script.outputs.SCRIPT_EXIT_CODE == '1'
+        if: steps.run_script.outputs.changed == '1'
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
