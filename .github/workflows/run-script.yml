@@ -2,8 +2,7 @@ name: Python-Skript automatisch ausführen
 
 on:
   schedule:
-    # alle 10 Minuten
-    - cron: '*/10 * * * *'
+    - cron: '*/5 * * * *'
 
 jobs:
   run-script:
