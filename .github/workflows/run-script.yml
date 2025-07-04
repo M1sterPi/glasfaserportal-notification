@@ -2,15 +2,15 @@ name: Python-Skript automatisch ausführen
 
 on:
   schedule:
-    - cron: '*/5 * * * *'
-  workflow_dispatch: {}
+    - cron: '*/5 * * * *'    # alle 5 Minuten
+  workflow_dispatch: {}      # manuelle Ausführung möglich
 
 jobs:
   run-script:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. Repo auschecken + Push-Credential behalten
+      # 1. Repo auschecken + Push-Token behalten
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
@@ -23,30 +23,32 @@ jobs:
         with:
           python-version: '3.11'
 
-      # 3. Dependenzen installieren
+      # 3. Abhängigkeiten installieren
       - name: Install dependencies
         run: |
           pip install -r requirements.txt
           python -m playwright install firefox
 
-      # 4. Skript ausführen und Exit-Code als Output setzen
+      # 4. Skript ausführen und Exit‐Code in Output schreiben
       - name: Run Python script
-        id: run_script                  # <-- hier die ID!
+        id: run_script
         env:
           FIBER_STATUS_URL: ${{ secrets.FIBER_STATUS_URL }}
-          SMTP_USER:         ${{ secrets.SMTP_USER }}
-          SMTP_PASS:         ${{ secrets.SMTP_PASS }}
-          SMTP_TO:           ${{ secrets.SMTP_TO }}
+          SMTP_HOST:        ${{ secrets.SMTP_HOST }}
+          SMTP_PORT:        ${{ secrets.SMTP_PORT }}
+          SMTP_USER:        ${{ secrets.SMTP_USER }}
+          SMTP_PASS:        ${{ secrets.SMTP_PASS }}
+          SMTP_TO:          ${{ secrets.SMTP_TO }}
         run: |
           python glasfaserportal_notification.py
           echo "changed=$?" >> $GITHUB_OUTPUT
 
-      # 5. Nur wenn sich was geändert hat, committen & pushen
+      # 5. Nur bei Änderung: last_status.json committen & pushen
       - name: Commit updated status
         if: steps.run_script.outputs.changed == '1'
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add last_status.json
-          git commit -m "chore: update last_status.json [skip ci]"
+          git commit -m "chore: update last_status.json [skip ci]" || echo "Nothing to commit"
           git push
