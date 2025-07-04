@@ -21,7 +21,8 @@ load_dotenv(dotenv_path=HERE / ".env")
 
 # ─── Konfiguration ────────────────────────────────────────────────────────────
 FIBER_STATUS_URL = os.environ["FIBER_STATUS_URL"]
-DATA_FILE        = Path.home() / ".telekom_fiber_status.json"
+DATA_FILE        = Path(__file__).parent / "last_status.json"
+
 
 SMTP_HOST = os.environ.get("SMTP_HOST", "smtp.gmail.com")
 SMTP_PORT = int(os.environ.get("SMTP_PORT", "587"))
