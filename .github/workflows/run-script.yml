@@ -1,0 +1,36 @@
+name: Python-Skript automatisch ausführen
+
+on:
+  schedule:
+    - cron: '0 2 * * *'
+  workflow_dispatch:  # Ermöglicht manuelle Ausführung
+
+jobs:
+  run-script:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Repo auschecken
+      - name: Checkout repository
+        uses: actions/checkout@v4  # KORRIGIERT
+
+      # 2. Python installieren
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      # 3. Abhängigkeiten installieren
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+          python -m playwright install firefox  # WICHTIG: Browser installieren
+
+      # 4. Skript ausführen
+      - name: Run Python script
+        env:
+          FIBER_STATUS_URL: ${{ secrets.FIBER_STATUS_URL }}
+          SMTP_USER: ${{ secrets.SMTP_USER }}
+          SMTP_PASS: ${{ secrets.SMTP_PASS }}
+          SMTP_TO: ${{ secrets.SMTP_TO }}
+        run: python glasfaserportal_notification.py
