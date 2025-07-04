@@ -1,37 +1,37 @@
+permissions:
+  contents: write  # erlaubt commit & push über GITHUB_TOKEN
+
 name: Python-Skript automatisch ausführen
 
 on:
   schedule:
-    - cron: '*/5 * * * *'    # alle 5 Minuten
-  workflow_dispatch: {}      # manuelle Ausführung möglich
+    - cron: '*/5 * * * *'
+  workflow_dispatch: {}
 
 jobs:
   run-script:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. Repo auschecken + Push-Token behalten
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
           persist-credentials: true
           fetch-depth: 0
 
-      # 2. Python einrichten
       - name: Setup Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.11'
 
-      # 3. Abhängigkeiten installieren
       - name: Install dependencies
         run: |
           pip install -r requirements.txt
           python -m playwright install firefox
 
-      # 4. Skript ausführen und Exit‐Code in Output schreiben
       - name: Run Python script
         id: run_script
+        shell: bash
         env:
           FIBER_STATUS_URL: ${{ secrets.FIBER_STATUS_URL }}
           SMTP_HOST:        ${{ secrets.SMTP_HOST }}
@@ -40,10 +40,13 @@ jobs:
           SMTP_PASS:        ${{ secrets.SMTP_PASS }}
           SMTP_TO:          ${{ secrets.SMTP_TO }}
         run: |
+          set +e
           python glasfaserportal_notification.py
-          echo "changed=$?" >> $GITHUB_OUTPUT
+          code=$?
+          echo "changed=$code" >> $GITHUB_OUTPUT
+          # optional: echo "Exit-Code war $code"
+          # und wir lassen die Shell jetzt mit 0 enden, damit der Job weiterläuft
 
-      # 5. Nur bei Änderung: last_status.json committen & pushen
       - name: Commit updated status
         if: steps.run_script.outputs.changed == '1'
         run: |
