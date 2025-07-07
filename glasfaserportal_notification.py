@@ -16,11 +16,9 @@ from bs4 import BeautifulSoup
 from dotenv import load_dotenv
 from playwright.async_api import async_playwright
 
-# ─── .env laden aus dem Skript-Ordner ─────────────────────────────────────────
 HERE = Path(__file__).parent
 load_dotenv(dotenv_path=HERE / ".env")
 
-# ─── Konfiguration ────────────────────────────────────────────────────────────
 FIBER_STATUS_URL = os.environ["FIBER_STATUS_URL"]
 DATA_FILE        = Path(__file__).parent / "last_status.json"
 
@@ -30,7 +28,6 @@ SMTP_PORT = int(os.environ.get("SMTP_PORT", "587"))
 SMTP_USER = os.environ["SMTP_USER"]
 SMTP_PASS = os.environ["SMTP_PASS"]
 SMTP_TO   = os.environ.get("SMTP_TO", SMTP_USER)
-# ──────────────────────────────────────────────────────────────────────────────
 
 
 
@@ -38,7 +35,6 @@ def extract_status_from_html(path="telekom_raw.html") -> str:
     with open(path, encoding="utf-8") as f:
         soup = BeautifulSoup(f, "lxml")
 
-    # ─── Dein alter Status-Text ────────────────────────────────────────────────
     headline = soup.find("h5", string="Aktuelle Informationen")
     if not headline:
         raise ValueError("Abschnitt 'Aktuelle Informationen' nicht gefunden!")
@@ -47,13 +43,12 @@ def extract_status_from_html(path="telekom_raw.html") -> str:
         raise ValueError("Status-Text nicht gefunden!")
     status_text = paragraph.get_text(separator=" ", strip=True)
 
-    # ─── Alle <div> mit Klassen, die mit "styles_line__" beginnen ───────────────
     line_divs = soup.find_all("div", class_=re.compile(r"(^|\s)styles_line__"))
-    # Wir speichern die kompletten class-Attribute
+    #komplette class-Attribute speichern
     line_classes = [" ".join(d["class"]) for d in line_divs]
     lines_text = " | ".join(line_classes) if line_classes else "no lines found"
 
-    # ─── Kombiniere alles für den Hash ──────────────────────────────────────────
+    #Status und Linien kombinieren
     combined = (
         status_text
         + "\n\nLINES:\n" + lines_text
@@ -73,15 +68,14 @@ async def fetch_hash() -> str:
         # 1) Seite aufrufen
         await page.goto(FIBER_STATUS_URL, timeout=60_000)
 
-        # 2) Auf Netzidle warten statt auf ein bestimmtes Element
+        # 2) Auf Netzidle warten 
         await page.wait_for_load_state("networkidle", timeout=60_000)
 
         # 3) kompletten HTML-Quelltext einsammeln
         html = await page.content()
 
-        # --- DEBUG: komplettes HTML in Datei schreiben ---
+        #DEBUG: komplettes HTML in Datei schreiben ---
         Path("telekom_raw.html").write_text(html, encoding="utf-8")
-        # ----------------------------------------------------
 
         await browser.close()
 
