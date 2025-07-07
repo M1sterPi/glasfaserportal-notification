@@ -22,10 +22,10 @@ python -m playwright install firefox
  
 1. Erstellen Sie eine .env-Datei im Projektverzeichnis mit folgenden Inhalten:
 
-# Telekom-Portal
+### Telekom-Portal
 FIBER_STATUS_URL=https://glasfaser.telekom.de/glasfaser-portal/?token=IHR_TOKEN_HIER
 
-# SMTP-Zugang
+### SMTP-Zugang
 SMTP_HOST=smtp.gmail.com
 SMTP_PORT=587
 SMTP_USER=ihre.email@gmail.com
@@ -55,13 +55,13 @@ SMTP_PASS: Ihr E-Mail-Passwort oder App-Passwort
 SMTP_TO: Empfänger-E-Mail (optional, wenn abweichend)
 Der Workflow wird automatisch alle 5 Minuten ausgeführt (kann in der run-script.yml angepasst werden).
 
-# Funktionsweise
+## Funktionsweise
 Das Skript öffnet das Telekom Glasfaser-Portal in einem virtuellen Browser
 Es extrahiert den "Aktuelle Informationen"-Abschnitt und den Status der Fortschrittsanzeige
 Diese Informationen werden in einen Hash umgewandelt
 Bei Änderungen im Vergleich zum vorherigen Hash wird eine E-Mail gesendet
 
-# Mitwirken
+## Mitwirken
 Beiträge, Problemmeldungen und Verbesserungsvorschläge sind willkommen! Öffnen Sie einfach ein Issue oder Pull Request.
 
 
