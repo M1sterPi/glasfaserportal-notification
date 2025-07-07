@@ -49,7 +49,7 @@ SMTP_TO=empfaenger@example.com # Ihre E-Mail 2 (AN)
 ### Manuelle Ausführung
 `python glasfaserportal_notification.py`
 
-Automatisierung mit GitHub Actions
+### Automatisierung mit GitHub Actions
 Das Repository enthält bereits eine GitHub Actions Workflow-Datei, die das Skript regelmäßig ausführt. Folgen Sie diesen Schritten, um die Automatisierung einzurichten:
 
 1. Forken Sie dieses Repository oder pushen Sie es in Ihr eigenes GitHub-Repository.
