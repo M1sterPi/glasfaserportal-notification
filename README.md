@@ -2,11 +2,11 @@
 Ein automatisches Überwachungstool für das Telekom Glasfaser-Portal. Dieses Skript prüft regelmäßig, ob sich der Status Ihres Glasfaserausbaus geändert hat und sendet Ihnen eine E-Mail-Benachrichtigung, sobald Änderungen erkannt werden.
 
 ## Funktionen
-· Überwacht automatisch den Status Ihres Glasfaserausbaus
-· Login ist nicht notwendig, lediglich der Link zum Portal
-· Sendet E-Mail-Benachrichtigungen bei Statusänderungen
-· Lässt sich mit GitHub Actions vollständig automatisieren
-· Verfolgt Änderungen an Informationstext und Fortschrittsbalken im html-Code
+- Überwacht automatisch den Status Ihres Glasfaserausbaus
+- Login ist nicht notwendig, lediglich der Link zum Portal
+- Sendet E-Mail-Benachrichtigungen bei Statusänderungen
+- Lässt sich mit GitHub Actions vollständig automatisieren
+- Verfolgt Änderungen an Informationstext und Fortschrittsbalken im html-Code
 
 ## Installation
 1. Repository klonen:
