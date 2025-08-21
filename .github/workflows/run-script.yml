@@ -44,8 +44,6 @@ jobs:
           python glasfaserportal_notification.py
           code=$?
           echo "changed=$code" >> $GITHUB_OUTPUT
-          # optional: echo "Exit-Code war $code"
-          # und wir lassen die Shell jetzt mit 0 enden, damit der Job weiterläuft
 
       - name: Commit updated status
         if: steps.run_script.outputs.changed == '1'
